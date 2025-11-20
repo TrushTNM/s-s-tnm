@@ -32,6 +32,8 @@ export default function App() {
   const [selectedCities, setSelectedCities] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
+  const [selectedSegments, setSelectedSegments] = useState<string[]>([]);
+  const [selectedRimAhs, setSelectedRimAhs] = useState<string[]>([]);
 
   // Table state
   const [data, setData] = useState<StockItem[]>([]);
@@ -85,6 +87,8 @@ export default function App() {
         cities: selectedCities,
         brands: selectedBrands,
         products: selectedProducts,
+        segments: selectedSegments,
+        rimAhs: selectedRimAhs,
         page: currentPage,
         pageSize: infiniteScroll ? 50 : pageSize,
         sortBy: sortBy || undefined,
@@ -104,7 +108,7 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, selectedCities, selectedBrands, selectedProducts, currentPage, pageSize, sortBy, sortOrder, infiniteScroll]);
+  }, [debouncedSearch, selectedCities, selectedBrands, selectedProducts, selectedSegments, selectedRimAhs, currentPage, pageSize, sortBy, sortOrder, infiniteScroll]);
 
   useEffect(() => {
     fetchData();
@@ -113,7 +117,7 @@ export default function App() {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [selectedCities, selectedBrands, selectedProducts]);
+  }, [selectedCities, selectedBrands, selectedProducts, selectedSegments, selectedRimAhs]);
 
   // Reset infinite scroll data when switching modes
   useEffect(() => {
@@ -126,6 +130,8 @@ export default function App() {
     setSelectedCities([]);
     setSelectedBrands([]);
     setSelectedProducts([]);
+    setSelectedSegments([]);
+    setSelectedRimAhs([]);
   };
 
   const handleSelectRow = (id: string) => {
@@ -235,9 +241,13 @@ export default function App() {
               selectedCities={selectedCities}
               selectedBrands={selectedBrands}
               selectedProducts={selectedProducts}
+              selectedSegments={selectedSegments}
+              selectedRimAhs={selectedRimAhs}
               onCitiesChange={setSelectedCities}
               onBrandsChange={setSelectedBrands}
               onProductsChange={setSelectedProducts}
+              onSegmentsChange={setSelectedSegments}
+              onRimAhsChange={setSelectedRimAhs}
               onClearAll={handleClearAllFilters}
             />
           </div>

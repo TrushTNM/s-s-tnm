@@ -79,7 +79,7 @@ export function MultiSelectFilter({
             <PopoverContent className="w-[200px] p-0" align="start">
                 <Command>
                     <CommandInput placeholder={title} />
-                    <CommandList>
+                    <CommandList className="overflow-y-auto" style={{ maxHeight: '300px' }}>
                         <CommandEmpty>No results found.</CommandEmpty>
                         <CommandGroup>
                             {options.map((option) => {

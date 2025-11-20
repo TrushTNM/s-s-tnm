@@ -23,6 +23,8 @@ export interface FilterOptions {
   cities: string[];
   brands: string[];
   products: string[];
+  segments: string[];
+  rimAhs: string[];
 }
 
 export interface ApiResponse {
@@ -37,6 +39,8 @@ export interface ApiParams {
   cities?: string[];
   brands?: string[];
   products?: string[];
+  segments?: string[];
+  rimAhs?: string[];
   page?: number;
   pageSize?: number;
   sortBy?: string;
@@ -87,18 +91,18 @@ const fetchGoogleSheetData = async (): Promise<StockItem[]> => {
         complete: (results) => {
           const data = results.data.map((row: any) => ({
             id: row['SKU'] || `unknown-${Math.random()}`,
-            brand: row['Brand'] || '',
-            product: row['Product'] || '',
-            city: row['City'] || '',
+            brand: (row['Brand'] || '').trim(),
+            product: (row['Product'] || '').trim(),
+            city: (row['City'] || '').trim(),
             quantity: parseInt(row['Quantity']?.replace(/,/g, '') || '0', 10),
             sellPrice: parseFloat(row['Rate']?.replace(/,/g, '') || '0'),
             costPrice: parseFloat(row['Value']?.replace(/,/g, '') || '0'),
             remarks: '',
-            itemDescription: row['Item Description'] || '',
-            size: row['Size'] || '',
-            pattern: row['Pattern'] || '',
-            segment: row['Segment'] || '',
-            rimAh: row['RIM/AH'] || '',
+            itemDescription: (row['Item Description'] || '').trim(),
+            size: (row['Size'] || '').trim(),
+            pattern: (row['Pattern'] || '').trim(),
+            segment: (row['Segment'] || '').trim(),
+            rimAh: (row['RIM/AH'] || '').trim(),
           })).filter(item => item.id && item.id !== 'unknown'); // Basic filtering of invalid rows
 
           cachedData = data;
@@ -141,6 +145,12 @@ const filterData = (data: StockItem[], params: ApiParams): StockItem[] => {
   }
   if (params.products && params.products.length > 0) {
     filtered = filtered.filter(item => params.products!.includes(item.product));
+  }
+  if (params.segments && params.segments.length > 0) {
+    filtered = filtered.filter(item => params.segments!.includes(item.segment));
+  }
+  if (params.rimAhs && params.rimAhs.length > 0) {
+    filtered = filtered.filter(item => params.rimAhs!.includes(item.rimAh));
   }
 
   // Apply sorting
@@ -213,15 +223,56 @@ export const api = {
   },
 
   // Get filter options
-  async getFilterOptions(): Promise<FilterOptions> {
+  async getFilterOptions(params: ApiParams = {}): Promise<FilterOptions> {
     return withRetry(async () => {
       const data = await fetchGoogleSheetData();
 
-      const cities = Array.from(new Set(data.map(item => item.city))).sort();
-      const brands = Array.from(new Set(data.map(item => item.brand))).sort();
-      const products = Array.from(new Set(data.map(item => item.product))).sort();
+      // Filter for Cities: Apply Brand, Product, Segment, and RimAh filters
+      const cityFiltered = filterData(data, {
+        brands: params.brands,
+        products: params.products,
+        segments: params.segments,
+        rimAhs: params.rimAhs
+      });
+      const cities = Array.from(new Set(cityFiltered.map(item => item.city).filter(Boolean))).sort();
 
-      return { cities, brands, products };
+      // Filter for Brands: Apply City, Product, Segment, and RimAh filters
+      const brandFiltered = filterData(data, {
+        cities: params.cities,
+        products: params.products,
+        segments: params.segments,
+        rimAhs: params.rimAhs
+      });
+      const brands = Array.from(new Set(brandFiltered.map(item => item.brand).filter(Boolean))).sort();
+
+      // Filter for Products: Apply City, Brand, Segment, and RimAh filters
+      const productFiltered = filterData(data, {
+        cities: params.cities,
+        brands: params.brands,
+        segments: params.segments,
+        rimAhs: params.rimAhs
+      });
+      const products = Array.from(new Set(productFiltered.map(item => item.product).filter(Boolean))).sort();
+
+      // Filter for Segments: Apply City, Brand, Product, and RimAh filters
+      const segmentFiltered = filterData(data, {
+        cities: params.cities,
+        brands: params.brands,
+        products: params.products,
+        rimAhs: params.rimAhs
+      });
+      const segments = Array.from(new Set(segmentFiltered.map(item => item.segment).filter(Boolean))).sort();
+
+      // Filter for RimAhs: Apply City, Brand, Product, and Segment filters
+      const rimAhFiltered = filterData(data, {
+        cities: params.cities,
+        brands: params.brands,
+        products: params.products,
+        segments: params.segments
+      });
+      const rimAhs = Array.from(new Set(rimAhFiltered.map(item => item.rimAh).filter(Boolean))).sort();
+
+      return { cities, brands, products, segments, rimAhs };
     });
   },
 
