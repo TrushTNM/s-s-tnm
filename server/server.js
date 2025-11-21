@@ -216,6 +216,16 @@ app.get('/api/export', async (req, res) => {
     }
 });
 
+// Serve static files from the React app in production
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// The "catchall" handler: for any request that doesn't match API routes,
+// send back React's index.html file
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
