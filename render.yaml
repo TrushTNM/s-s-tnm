@@ -1,7 +1,7 @@
 staticSites:
   - name: responsive-stock-dashboard
     buildCommand: npm install && npm run build
-    publishPath: build
+    publishPath: dist
     routes:
       - type: rewrite
         source: /*

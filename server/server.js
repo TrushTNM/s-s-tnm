@@ -6,7 +6,7 @@ const { syncData } = require('./sync');
 const { normalize } = require('./utils');
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
