@@ -1,7 +1,46 @@
-import { StockItem, ApiParams, ApiResponse, FilterOptions } from './api';
+export interface StockItem {
+  id: string;
+  brand: string;
+  product: string;
+  city: string;
+  quantity: number;
+  sellPrice: number;
+  costPrice: number;
+  itemDescription: string;
+  size: string;
+  pattern: string;
+  segment: string;
+  rimAh: string;
+  remarks?: string;
+}
 
-// Re-export types
-export type { StockItem, ApiParams, ApiResponse, FilterOptions };
+export interface ApiParams {
+  search?: string;
+  page?: number;
+  pageSize?: number;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+  cities?: string[];
+  brands?: string[];
+  products?: string[];
+  segments?: string[];
+  rimAhs?: string[];
+}
+
+export interface ApiResponse {
+  data: StockItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface FilterOptions {
+  cities: string[];
+  brands: string[];
+  products: string[];
+  segments: string[];
+  rimAhs: string[];
+}
 
 export interface ColumnSchema {
   key: keyof StockItem;
@@ -58,6 +97,7 @@ export const api = {
     const queryParams = new URLSearchParams();
 
     // Pass current filters to get dependent options
+    if (params.search) queryParams.append('search', params.search);
     if (params.cities) params.cities.forEach(val => queryParams.append('cities', val));
     if (params.brands) params.brands.forEach(val => queryParams.append('brands', val));
     if (params.products) params.products.forEach(val => queryParams.append('products', val));

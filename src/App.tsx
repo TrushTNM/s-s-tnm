@@ -238,6 +238,7 @@ export default function App() {
           {/* Filter Bar */}
           <div className="p-4 lg:px-6 lg:pt-6 pb-0">
             <FilterBar
+              searchQuery={debouncedSearch}
               selectedCities={selectedCities}
               selectedBrands={selectedBrands}
               selectedProducts={selectedProducts}

@@ -146,10 +146,11 @@ app.get('/api/stock', async (req, res) => {
 // Get filter options
 app.get('/api/filters', async (req, res) => {
     try {
-        const { cities, brands, products, segments, rimAhs } = req.query;
+        const { search, cities, brands, products, segments, rimAhs } = req.query;
 
         const parseArray = (val) => val ? (Array.isArray(val) ? val : [val]) : undefined;
         const currentFilters = {
+            search,
             cities: parseArray(cities),
             brands: parseArray(brands),
             products: parseArray(products),
@@ -220,13 +221,17 @@ app.get('/api/export', async (req, res) => {
 const path = require('path');
 app.use(express.static(path.join(__dirname, '../dist')));
 
-// The "catchall" handler: for any request that doesn't match API routes,
-// send back React's index.html file
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../dist/index.html'));
+// Fallback to index.html for any non-API routes (SPA support)
+// This must be AFTER all API routes
+app.use((req, res, next) => {
+    // Only serve index.html for GET requests that don't start with /api
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+        res.sendFile(path.join(__dirname, '../dist/index.html'));
+    } else {
+        next();
+    }
 });
 
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
-

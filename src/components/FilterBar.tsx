@@ -6,6 +6,7 @@ import { MultiSelectFilter } from './MultiSelectFilter';
 import { Skeleton } from './ui/skeleton';
 
 interface FilterBarProps {
+    searchQuery?: string;
     selectedCities: string[];
     selectedBrands: string[];
     selectedProducts: string[];
@@ -26,6 +27,7 @@ export function FilterBar({
     selectedProducts,
     selectedSegments,
     selectedRimAhs,
+    searchQuery,
     onCitiesChange,
     onBrandsChange,
     onProductsChange,
@@ -63,6 +65,7 @@ export function FilterBar({
         const loadFilterOptions = async () => {
             try {
                 const options = await api.getFilterOptions({
+                    search: searchQuery,
                     cities: selectedCities,
                     brands: selectedBrands,
                     products: selectedProducts,
@@ -78,7 +81,7 @@ export function FilterBar({
         };
 
         loadFilterOptions();
-    }, [selectedCities, selectedBrands, selectedProducts, selectedSegments, selectedRimAhs]);
+    }, [searchQuery, selectedCities, selectedBrands, selectedProducts, selectedSegments, selectedRimAhs]);
 
     const hasPendingChanges =
         JSON.stringify(pendingCities) !== JSON.stringify(selectedCities) ||
